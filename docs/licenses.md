@@ -9,7 +9,7 @@
 | ライブラリ | バージョン | ライセンス |
 | --- | --- | --- |
 | [React / React DOM](https://github.com/facebook/react) | 19.3.1 | MIT |
-| [Next.js](https://github.com/vercel/next.js) | 16.4.5 | MIT |
+| [Next.js](https://github.com/vercel/next.js) | 16.4.6 | MIT |
 | [Hono](https://github.com/honojs/hono) | 4.13.16 | MIT |
 | [@hono/node-server](https://github.com/honojs/node-server) | 2.1.6 | MIT |
 | [Better Auth / @better-auth/passkey / @better-auth/prisma-adapter](https://github.com/better-auth/better-auth) | 1.7.18 | MIT |

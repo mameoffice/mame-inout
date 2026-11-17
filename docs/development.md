@@ -47,7 +47,7 @@ APIを変更する場合は、共有スキーマ、Honoの処理、DB制約、�
 
 ## 開発に必要なもの
 
-- Node.js 24系。リポジトリの [.node-version](../.node-version) は `24.22.2` を指定しています。
+- Node.js 24系。リポジトリの [.node-version](../.node-version) は `24.22.3` を指定しています。
 - npm `11.19.1`。依存関係は `package-lock.json` に合わせ、`npm ci` で準備します。
 - Docker EngineとDocker Composeプラグイン。WindowsではLinuxコンテナを使うDocker Desktopが必要です。
 - 保守処理のテストも行う場合はPython 3とGnuPG。性能確認は専用環境を使います。

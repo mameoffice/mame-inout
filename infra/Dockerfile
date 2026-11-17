@@ -1,4 +1,4 @@
-FROM node:24.22.2-bookworm-slim AS build
+FROM node:24.22.3-bookworm-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json .npmrc ./
@@ -14,7 +14,7 @@ COPY scripts scripts
 COPY tests tests
 RUN npm run generate && npm run build && npm run typecheck && npm run lint && npm test
 
-FROM node:24.22.2-bookworm-slim AS runtime
+FROM node:24.22.3-bookworm-slim AS runtime
 # 実行時はNodeだけを使う。同梱npmの依存を攻撃対象へ残さず、ビルド段階とは分離する。
 RUN rm -rf /usr/local/lib/node_modules/npm \
     && rm -f /usr/local/bin/npm /usr/local/bin/npx
