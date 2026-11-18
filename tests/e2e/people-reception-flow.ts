@@ -74,7 +74,16 @@ export async function runPeopleReceptionFlow(admin: BrowserContext, browser: Bro
     await expect(approval).not.toBeVisible();
     await receiver.getByRole("button", { name: "承認の状態を確認", exact: true }).click();
     await receiver.getByRole("button", { name: "このブラウザで利用を開始", exact: true }).click();
-    await receiver.getByRole("link", { name: "QR受付を開く", exact: true }).click();
+    await expect(receiver.getByRole("link", { name: "QR受付を開く", exact: true })).toBeVisible();
+    // 受付Cookieを残したまま管理者の入口へ戻っても、認可を緩めずログインを選べる。
+    const deniedAdmin = receiver.waitForResponse((response) => new URL(response.url()).pathname === "/api/admin/me");
+    await receiver.goto("/");
+    const adminResponse = await deniedAdmin;
+    expect(adminResponse.status()).toBe(403);
+    expect((await adminResponse.json()).code).toBe("FORBIDDEN");
+    await expect(receiver.getByRole("button", { name: "パスキーでログイン", exact: true })).toBeVisible();
+    // 管理者ログインの表示だけでは、承認済みの受付資格を削除・失効しない。
+    await receiver.goto("/reception");
     await expect(receiver.getByRole("button", { name: "入室", exact: true })).toHaveAttribute("aria-pressed", "true");
     expect((await reception.request.get("/api/admin/people")).status()).toBe(403);
 

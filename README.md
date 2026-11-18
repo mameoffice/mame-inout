@@ -123,8 +123,8 @@ iPhoneはSafari、AndroidはChromeアプリから、設置したHTTPSのURLを�
 
 | 担当 | 使用技術 |
 | --- | --- |
-| 画面 | Next.js 16.4.5 / React 19.3.1 / App Router |
-| API | Hono 4.13.16 / Node.js 24.22.2 |
+| 画面 | Next.js 16.4.6 / React 19.3.1 / App Router |
+| API | Hono 4.13.16 / Node.js 24.22.3 |
 | 型・入力検証 | TypeScript 6.0.3 / Zod 4.6.7 |
 | 管理者認証 | Better Auth 1.7.18 / パスキー（WebAuthn） |
 | データベース | PostgreSQL 18.6 / Prisma 7.10.1 |
