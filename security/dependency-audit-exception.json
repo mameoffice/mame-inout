@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "advisory": {
+    "id": "GHSA-fc5q-39xc-vjpf",
+    "source": 1247710,
+    "name": "picomatch",
+    "severity": "high",
+    "url": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+    "range": "<=4.0.7"
+  },
+  "owner": "MameOffice",
+  "approvedOn": "2026-11-18",
+  "expiresAt": "2026-12-01T15:00:00.000Z",
+  "lockfileSha256": "328c5d7740480a52c6477a6c29de1fa3cc90dc1881839dbeb4d463148ea89253",
+  "reason": "修正版が未公開のため、開発・検査ツールの既知経路だけを期限付きで受け入れる。API実行イメージからの除外と再混入検査、機能検証を維持する。",
+  "residualRisk": "開発・CIの処理停止リスクは残る。Next内包版と全到達経路の安全性は未確定であり、この例外をWeb内包コードの安全認定には使わない。",
+  "review": "週1回を目安に公式修正版を手動確認する。修正版の公開後に更新・検証して例外を削除し、自動延長はしない。",
+  "affected": {
+    "@next/eslint-plugin-next": {
+      "nodes": {
+        "node_modules/@next/eslint-plugin-next": "16.4.6"
+      },
+      "via": [
+        "fast-glob"
+      ]
+    },
+    "@typescript-eslint/eslint-plugin": {
+      "nodes": {
+        "node_modules/@typescript-eslint/eslint-plugin": "8.72.1"
+      },
+      "via": [
+        "@typescript-eslint/parser",
+        "@typescript-eslint/type-utils",
+        "@typescript-eslint/utils"
+      ]
+    },
+    "@typescript-eslint/parser": {
+      "nodes": {
+        "node_modules/@typescript-eslint/parser": "8.72.1"
+      },
+      "via": [
+        "@typescript-eslint/typescript-estree"
+      ]
+    },
+    "@typescript-eslint/type-utils": {
+      "nodes": {
+        "node_modules/@typescript-eslint/type-utils": "8.72.1"
+      },
+      "via": [
+        "@typescript-eslint/typescript-estree",
+        "@typescript-eslint/utils"
+      ]
+    },
+    "@typescript-eslint/typescript-estree": {
+      "nodes": {
+        "node_modules/@typescript-eslint/typescript-estree": "8.72.1"
+      },
+      "via": [
+        "tinyglobby"
+      ]
+    },
+    "@typescript-eslint/utils": {
+      "nodes": {
+        "node_modules/@typescript-eslint/utils": "8.72.1"
+      },
+      "via": [
+        "@typescript-eslint/typescript-estree"
+      ]
+    },
+    "fast-glob": {
+      "nodes": {
+        "node_modules/fast-glob": "3.3.1"
+      },
+      "via": [
+        "micromatch"
+      ]
+    },
+    "fdir": {
+      "nodes": {
+        "node_modules/tinyglobby/node_modules/fdir": "6.5.0"
+      },
+      "via": [
+        "picomatch"
+      ]
+    },
+    "micromatch": {
+      "nodes": {
+        "node_modules/micromatch": "4.0.8"
+      },
+      "via": [
+        "picomatch"
+      ]
+    },
+    "picomatch": {
+      "nodes": {
+        "node_modules/picomatch": "2.3.2",
+        "node_modules/tinyglobby/node_modules/picomatch": "4.0.7",
+        "node_modules/vite/node_modules/picomatch": "4.0.7",
+        "node_modules/vitest/node_modules/picomatch": "4.0.7"
+      },
+      "via": [
+        "https://github.com/advisories/GHSA-fc5q-39xc-vjpf"
+      ]
+    },
+    "tinyglobby": {
+      "nodes": {
+        "node_modules/tinyglobby": "0.2.17"
+      },
+      "via": [
+        "fdir",
+        "picomatch"
+      ]
+    },
+    "typescript-eslint": {
+      "nodes": {
+        "node_modules/typescript-eslint": "8.72.1"
+      },
+      "via": [
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "@typescript-eslint/typescript-estree",
+        "@typescript-eslint/utils"
+      ]
+    },
+    "vite": {
+      "nodes": {
+        "node_modules/vite": "8.3.6"
+      },
+      "via": [
+        "picomatch",
+        "tinyglobby"
+      ]
+    },
+    "vitest": {
+      "nodes": {
+        "node_modules/vitest": "5.1.0"
+      },
+      "via": [
+        "picomatch",
+        "tinyglobby",
+        "vite"
+      ]
+    }
+  }
+}

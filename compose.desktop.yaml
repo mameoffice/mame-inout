@@ -1,7 +1,7 @@
 # WindowsのDocker Desktop専用。本番Linuxではcompose.yamlのファイル型secretsを使う。
 services:
   prepare-secrets:
-    image: node:24.22.2-bookworm-slim
+    image: node:24.22.3-bookworm-slim
     command: [node, /prepare.mjs]
     secrets: [db_admin_password, db_app_password, db_migrate_password, db_backup_password, db_maintenance_password, auth_secret]
     volumes:

@@ -18,6 +18,8 @@
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts --configLoader native",
     "test:e2e": "playwright test",
+    "test:audit-policy": "node --test tests/security/dependency-audit.test.mjs",
+    "audit:dependencies": "node scripts/check-dependency-audit.mjs",
     "build": "npm run build -w @mame/contracts && npm run build -w @mame/api && npm run build -w @mame/web",
     "dev:setup": "node scripts/setup-dev.mjs"
   },
@@ -25,7 +27,7 @@
     "@playwright/test": "1.65.0",
     "@types/node": "24.19.2",
     "eslint": "10.14.0",
-    "@next/eslint-plugin-next": "16.4.5",
+    "@next/eslint-plugin-next": "16.4.6",
     "eslint-plugin-react-hooks": "7.1.1",
     "tsx": "4.23.15",
     "typescript": "6.0.3",

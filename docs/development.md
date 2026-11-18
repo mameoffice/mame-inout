@@ -47,7 +47,7 @@ APIを変更する場合は、共有スキーマ、Honoの処理、DB制約、�
 
 ## 開発に必要なもの
 
-- Node.js 24系。リポジトリの [.node-version](../.node-version) は `24.22.2` を指定しています。
+- Node.js 24系。リポジトリの [.node-version](../.node-version) は `24.22.3` を指定しています。
 - npm `11.19.1`。依存関係は `package-lock.json` に合わせ、`npm ci` で準備します。
 - Docker EngineとDocker Composeプラグイン。WindowsではLinuxコンテナを使うDocker Desktopが必要です。
 - 保守処理のテストも行う場合はPython 3とGnuPG。性能確認は専用環境を使います。
@@ -231,3 +231,12 @@ DBから作り直す場合の `dc down --volumes` は、そのプロジェクト
 確認ダイアログは共通のアプリ内モーダルを使います。パスキーやカメラ許可のOS・ブラウザ標準ダイアログは、その仕組みに従います。コミット前には差分と追加ファイルを読み、デバッグ用の `console.log`、実データ、秘密値が含まれていないことを確認してください。
 
 [GitHub Actions](../.github/workflows/ci.yml)は、`main`向けPull Requestと、`main`への取り込み後に実行します。`develop`へのpushだけでは同じCIを重複実行しません。実行結果は対象のコミットと対応させ、[確認済みの範囲](overview.md#確認できている範囲)の説明も更新してください。
+
+依存監査の判定と機能検証は別ジョブで実行し、両方が成功した場合だけ最終の `verify` を成功させます。手元では次のコマンドで監査の判定と、その境界条件のテストを実行できます。
+
+```sh
+npm run test:audit-policy
+npm run audit:dependencies
+```
+
+監査は開発・任意・peerの依存も含めて実行します。[期限付き例外](../SECURITY.md#開発検査ツールの依存に関する期限付き例外)が適用された場合は、元の監査警告と例外を含む判定を区別して表示します。`npm audit --audit-level=high` を直接実行した結果が0件になるという意味ではありません。ロックファイルを変更した場合は例外を再評価し、設定のハッシュだけを機械的に書き換えないでください。
