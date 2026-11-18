@@ -11,7 +11,23 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  verify:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: 依存関係の既知の重大な脆弱性を確認
+        # 開発・検査ツールの依存も監査し、実行イメージへの同梱有無とは分けて確認する。
+        run: npm audit --audit-level=high
+  checks:
+    # 監査の失敗で型・テスト等の確認まで止めないよう、独立して実行する。
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -28,9 +44,6 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: 依存関係の既知の重大な脆弱性を確認
-        # 開発・検査ツールの依存も監査し、実行イメージへの同梱有無とは分けて確認する。
-        run: npm audit --audit-level=high
       - run: npm run generate && npm run build -w @mame/contracts
       - run: npm run typecheck && npm run lint && npm test && npm run build
       - name: 保管・復元の失敗と再実行を確認
@@ -58,3 +71,19 @@ jobs:
         if: always()
         # このジョブだけの使い捨てプロジェクトに限定する。
         run: docker compose -p mame-inout-test -f compose.yaml -f compose.test.yaml down --volumes
+  verify:
+    # 既存のチェック名を保ち、監査が失敗した場合は最終判定も失敗にする。
+    needs: [audit, checks]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: 監査と機能検証の両方が成功したことを確認
+        env:
+          AUDIT_RESULT: ${{ needs.audit.result }}
+          CHECKS_RESULT: ${{ needs.checks.result }}
+        run: |
+          if [ "$AUDIT_RESULT" != "success" ] || [ "$CHECKS_RESULT" != "success" ]; then
+            echo "依存監査と機能検証の両方が成功している必要があります。"
+            exit 1
+          fi
