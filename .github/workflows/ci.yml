@@ -29,7 +29,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: 依存関係の既知の重大な脆弱性を確認
-        # APIイメージにはビルド時の依存も含むため、開発依存を検査から除外しない。
+        # 開発・検査ツールの依存も監査し、実行イメージへの同梱有無とは分けて確認する。
         run: npm audit --audit-level=high
       - run: npm run generate && npm run build -w @mame/contracts
       - run: npm run typecheck && npm run lint && npm test && npm run build
