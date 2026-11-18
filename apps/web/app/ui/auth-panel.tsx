@@ -9,14 +9,42 @@ import { RecoveryCodesModal } from "./recovery-codes-modal";
 
 type Stage = "loading" | "setup" | "login" | "ready" | "unavailable";
 type CompletedAction = { origin: Element | null; moved: boolean };
+type StateStep = "ADMIN" | "SETUP";
+type StateReference = `${StateStep}_NETWORK` | `${StateStep}_HTTP_${number}` | `${StateStep}_INVALID_RESPONSE` | "STATE_UNKNOWN";
+
+class AuthStateError extends Error {
+  constructor(reference: StateReference) {
+    // 本文・Cookie・例外の詳細を表示せず、管理者へ伝えられる固定の識別子だけを添える。
+    super(`接続先の状態を確認できませんでした。接続を再確認してください。（確認番号：${reference}）`);
+  }
+}
+
+const stateError = (error: unknown) => error instanceof AuthStateError ? error : new AuthStateError("STATE_UNKNOWN");
+
+async function fetchState(path: string, step: StateStep) {
+  try { return await fetch(path, { cache: "no-store" }); }
+  catch { throw new AuthStateError(`${step}_NETWORK`); }
+}
 
 async function loadState(): Promise<{ stage: Stage; admin: AdminResponse | null }> {
-  const me = await fetch("/api/admin/me", { cache: "no-store" });
-  if (me.ok) return { admin: adminResponseSchema.parse(await me.json()), stage: "ready" };
-  if (me.status !== 401) throw new Error("状態を確認できませんでした。しばらく待って再確認してください。");
-  const response = await fetch("/api/setup/status", { cache: "no-store" });
-  if (!response.ok) throw new Error("接続を確認できませんでした。再確認してください。");
-  const status = await response.json() as { completed: boolean };
+  const me = await fetchState("/api/admin/me", "ADMIN");
+  if (me.ok) {
+    const admin = adminResponseSchema.safeParse(await me.json().catch(() => null));
+    if (!admin.success) throw new AuthStateError("ADMIN_INVALID_RESPONSE");
+    return { admin: admin.data, stage: "ready" };
+  }
+  const failure: unknown = me.status === 403 ? await me.json().catch(() => null) : null;
+  // 受付資格だけのブラウザにもパスキーログインを表示し、管理APIの認可は維持する。
+  // Origin拒否・未知の応答・障害まで未ログインとして扱うと、接続異常を隠してしまう。
+  const needsLogin = me.status === 401 || (me.status === 403 && failure !== null && typeof failure === "object"
+    && "code" in failure && failure.code === "FORBIDDEN");
+  if (!needsLogin) throw new AuthStateError(`ADMIN_HTTP_${me.status}`);
+  const response = await fetchState("/api/setup/status", "SETUP");
+  if (!response.ok) throw new AuthStateError(`SETUP_HTTP_${response.status}`);
+  const status: unknown = await response.json().catch(() => null);
+  if (status === null || typeof status !== "object" || !("completed" in status) || typeof status.completed !== "boolean") {
+    throw new AuthStateError("SETUP_INVALID_RESPONSE");
+  }
   return { stage: status.completed ? "login" : "setup", admin: null };
 }
 
@@ -36,14 +64,17 @@ export function AuthPanel() {
   const [completedAction, setCompletedAction] = useState<CompletedAction | null>(null);
 
   async function refresh() {
-    const state = await loadState();
+    const state = await loadState().catch((error: unknown) => { throw stateError(error); });
     setStage(state.stage); setAdmin(state.admin);
   }
 
   useEffect(() => {
     let active = true;
     void loadState().then((state) => { if (active) { setStage(state.stage); setAdmin(state.admin); } })
-      .catch(() => { if (active) { setStage("unavailable"); setMessage("接続できませんでした。通信状況を確認して再確認してください。"); } });
+      .catch((error: unknown) => { if (active) {
+        setStage("unavailable");
+        setMessage(stateError(error).message);
+      } });
     return () => { active = false; };
   }, []);
 
