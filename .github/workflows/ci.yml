@@ -23,9 +23,11 @@ jobs:
           node-version-file: .node-version
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: 依存関係の既知の重大な脆弱性を確認
-        # 開発・検査ツールの依存も監査し、実行イメージへの同梱有無とは分けて確認する。
-        run: npm audit --audit-level=high
+      - name: 依存監査の例外判定を検証
+        run: npm run test:audit-policy
+      - name: 依存関係を監査し期限付き例外を確認
+        # 開発依存も監査し、承認済みの1件だけを期限内・既知の経路で例外判定する。
+        run: npm run audit:dependencies
   checks:
     # 監査の失敗で型・テスト等の確認まで止めないよう、独立して実行する。
     runs-on: ubuntu-24.04
@@ -72,18 +74,18 @@ jobs:
         # このジョブだけの使い捨てプロジェクトに限定する。
         run: docker compose -p mame-inout-test -f compose.yaml -f compose.test.yaml down --volumes
   verify:
-    # 既存のチェック名を保ち、監査が失敗した場合は最終判定も失敗にする。
+    # 既存のチェック名を保ち、監査の判定が失敗した場合は最終判定も失敗にする。
     needs: [audit, checks]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
-      - name: 監査と機能検証の両方が成功したことを確認
+      - name: 監査の判定と機能検証の両方が成功したことを確認
         env:
           AUDIT_RESULT: ${{ needs.audit.result }}
           CHECKS_RESULT: ${{ needs.checks.result }}
         run: |
           if [ "$AUDIT_RESULT" != "success" ] || [ "$CHECKS_RESULT" != "success" ]; then
-            echo "依存監査と機能検証の両方が成功している必要があります。"
+            echo "依存監査の判定と機能検証の両方が成功している必要があります。"
             exit 1
           fi

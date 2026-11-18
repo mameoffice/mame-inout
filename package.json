@@ -18,6 +18,8 @@
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts --configLoader native",
     "test:e2e": "playwright test",
+    "test:audit-policy": "node --test tests/security/dependency-audit.test.mjs",
+    "audit:dependencies": "node scripts/check-dependency-audit.mjs",
     "build": "npm run build -w @mame/contracts && npm run build -w @mame/api && npm run build -w @mame/web",
     "dev:setup": "node scripts/setup-dev.mjs"
   },
